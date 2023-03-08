@@ -1,2 +1,80 @@
 # Experiment.ConsoleStandatdErrorWithColor
-Experimental project for colored output from console to stderr
+This is a project to investigate an issue where stderr output to the console is not colored.
+
+## [Overview]
+In a c# console application, if the standard output is redirected, the standard error output is not displayed in the specified color.
+
+## [Execution environment]
+
++ OS: WIndows 10
++ IDE: Microsoft Visual Studio Community 2022 (64 bit) - Current Version 17.5.1
++ Runtime: .NET6.0.14 / .NET7.0.3
++ Console: Command prompt / Command prompt by Windows terminal
+
+## [Condition of occurrence of the problem]
+1. It is a console application running on `.NET`, and
+2. the foreground color has been changed with `Console.ForegroundColor`, and
+3. the display has been made to the console by `Console.Error.Write()` / `Console.Error.Write()` case.
+
+If the above conditions are met, regardless of what value the user code sets the `ForegroundColor` property to, the following will occur:
++ The value of the `ForegroundColor` property is `ConsoleColor.Gray`.
++ Characters are displayed in the default foreground color in the console.
+
+## [Reproducibility]
+It will definitely reproduce.
+
+## [Investigation result]
+
+### `.NET` code findings
+
+First, I examined
+[the source code of the `Console` class](https://github.com/dotnet/runtime/blob/main/src/libraries/System.Console/src/System/Console.cs)
+, and found that 
+[the `ConsolePal` class](https://github.com/dotnet/runtime/blob/main/src/libraries/System.Console/src/System/ConsolePal.Windows.cs)
+is responsible for processing the ForegroundColor property.
+
+After that, as a result of investigating the source code of the `ForegroundColor` property of 
+[the `ConsolePal` class](https://github.com/dotnet/runtime/blob/main/src/libraries/System.Console/src/System/ConsolePal.Windows.cs)
+, the following was found.
+
+* The `ForegoundColor` property getter determines the foreground color from the results of the `GetConsoleScreenBufferInfo` Win32 API.
+* A call to the `GetConsoleScreenBufferInfo` API will fail if the handle (that is, any of stdin/stdout/stderr) has been redirected.
+* The getter calls the `GetConsoleScreenBufferInfo` API in the following order, and determines the current foreground color based on the information that was successfully obtained first.
+  1. A call to the `GetConsoleScreenBufferInfo` API for the handle to standard output
+  1. A call to the `GetConsoleScreenBufferInfo` API for the handle to standard error output
+  1. A call to the `GetConsoleScreenBufferInfo` API for the handle to standard input
+* The `ForegoundColor` property setter sets the specified foreground color to the console by calling the `SetConsoleTextAttribute` Win32 API on standard output. Even if an error occurs in the Win32 API at this time, it will be ignored.
+
+### Speculation as to the cause of the problem
+From the above survey results, the following can be inferred.
+
+#### 1. If standard output is not redirected.
+When user code changes the value of the `ForegroundColor` property, a Win32 API is called as the change to the standard output handle.
+After that, when user code prints to standard output, it will be displayed in the console with the foreground color set by the `ForegroundColor` property.
+This is expected behavior.
+
+At the same time, the foreground color of the standard error output will also be the same color.
+The output destination for standard output is a device called "console", and the output destination for standard error output is the same device, so this is probably expected behavior.
+
+#### 2. If standard output is redirected
+When user code changes the value of the `ForegroundColor` property, a Win32 API is called for the change to the standard output handle.
+However, **this Win32 API should have failed** because standard output has been redirected, but the failure is ignored.
+
+Subsequent attempts to print characters to stderr will call the Win32 API to ask for information such as the console foreground color.
+By the way, since the standard output is redirected at this time, it is the Win32 API call to the standard error output that normally returns the console information.
+However, the Win32 API returns the foreground color before the change (that is, the default foreground color) because the foreground color has failed to be changed as described above.
+
+As a result, the foreground color of the standard error output is the default color, regardless of what the ForegroundColor property is set to.
+**Of course, this is behavior most users would not expect.**
+
+## [About proposed solutions]
+The current implementation of the `ConsolePal` class `ForegroundColor` property setter does not error check[^1] calls to the `SetConsoleTextAttribute` Win32 API and only calls to standard output.
+
+Would calling the `SetConsoleTextAttribute` Win32 API on the setter of the `ForegroundColor` property not only on stdout, but also on stderr (and stdin) solve the problem?
+
+At the very least, ignoring the error and calling the `SetConsoleTextAttribute` Win32 API on both stdout and stderr seems to set the foreground color correctly even if one of them is redirected.[^2]
+
+[^1]: Considering that an error occurs even in the common situation that "standard output is redirected", it seems rather natural that error checking is not performed.
+
+[^2]: If the `SetConsoleTextAttribute` Win32 API fails for both standard output and standard error, it should mean that both standard output and standard error are being redirected. Considering whether you really need to care about the value of the `ForegroundColor` property in that situation, you may not need to call the `SetConsoleTextAttribute` Win32 API on standard input.
+
