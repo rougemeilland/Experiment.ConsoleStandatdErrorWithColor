@@ -11,7 +11,7 @@ In a c# console application, if the standard output is redirected, the standard 
 + Runtime: .NET6.0.14 / .NET7.0.3
 + Console: Command prompt / Command prompt by Windows terminal
 
-## [Condition of occurrence of the problem]
+## [Problems that occur and the conditions under which they occur]
 1. It is a console application running on `.NET`, and
 2. the foreground color has been changed with `Console.ForegroundColor`, and
 3. the display has been made to the console by `Console.Error.Write()` / `Console.Error.Write()` case.
@@ -22,6 +22,58 @@ If the above conditions are met, regardless of what value the user code sets the
 
 ## [Reproducibility]
 It will definitely reproduce.
+
+## [Sample program]
+
+### Sample source code
+Below is the sample source code.
+
+```c#
+using System;
+
+namespace Experiment.ConsoleStandatdErrorWithColor.Experiment01
+{
+    /// <summary>
+    /// A test program to check the strange behavior of the Console class.
+    /// </summary>
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            // Back up the current foreground color before changing the foreground color.
+            var defaultColor = Console.ForegroundColor;
+
+            // Change the foreground color to blue.
+            Console.ForegroundColor = ConsoleColor.Blue;
+
+            // Display with "Console.WriteLine(string?)".
+            Console.WriteLine("This text is expected to be displayed in blue. (to default (==stdout))");
+
+            // Display with "Console.Out.WriteLine(string?)"
+            Console.Out.WriteLine("This text is expected to be displayed in blue. (to stdout)");
+
+            // Display with "Console.Error.WriteLine(string?)"
+            Console.Error.WriteLine("This text is expected to be displayed in blue. (to stderr)");
+
+            // Display the foreground color of the console.
+            Console.WriteLine($"The current console foreground color is \"{Console.ForegroundColor}\" (to stdout).");
+            Console.Error.WriteLine($"The current console foreground color is \"{Console.ForegroundColor}\" (to stderr).");
+
+            // Restore the foreground color.
+            Console.ForegroundColor = defaultColor;
+        }
+    }
+}
+```
+
+The complete source code of the sample program can be found at the URL below.
+[https://github.com/rougemeilland/Experiment.ConsoleStandatdErrorWithColor/tree/main/Experiment.ConsoleStandatdErrorWithColor.Experiment01](https://github.com/rougemeilland/Experiment.ConsoleStandatdErrorWithColor/tree/main/Experiment.ConsoleStandatdErrorWithColor.Experiment01)
+
+### How to use the sample program
+1. Build the above source files to create `experiment01.exe`.
+1. The following results are displayed when `experiment01.exe` is executed on the console. ![Execution result when not redirected](img/experiment01_01.png)
+1. The following results are displayed when `experiment01.exe > foo.txt` is executed on the console. ![Execution result when not redirected](img/experiment01_02.png)
+1. The following results are displayed when `experiment01.exe 2> foo.txt` is executed on the console. ![Execution result when not redirected](img/experiment01_03.png)
 
 ## [Investigation result]
 
