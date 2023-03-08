@@ -100,6 +100,7 @@ After that, as a result of investigating the source code of the `ForegroundColor
   1. A call to the `GetConsoleScreenBufferInfo` API for the handle to standard error output
   1. A call to the `GetConsoleScreenBufferInfo` API for the handle to standard input
 * The `ForegoundColor` property setter sets the specified foreground color to the console by calling the `SetConsoleTextAttribute` Win32 API on standard output. Even if an error occurs in the Win32 API at this time, it will be ignored.
+* If the stdout/stderr handle given to the `SetConsoleTextAttribute` Win32 API is a redirected one, the API will return with an error.
 
 ### Speculation as to the cause of the problem
 From the above survey results, the following can be inferred.
@@ -123,10 +124,28 @@ However, the Win32 API returns the foreground color before the change (that is, 
 As a result, the foreground color of the standard error output is the default color, regardless of what the ForegroundColor property is set to.
 **Of course, this is behavior most users would not expect.**
 
+### About the `BackgroundColor` property
+Since the `ForegroundColor` and `BackgroundColor` properties have very similar implementations, they probably have similar potential problems.
+Also, it seems that it can be dealt with by the same coping method.
+
 ## [About proposed solutions]
 The current implementation of the `ConsolePal` class `ForegroundColor` property setter does not error check[^1] calls to the `SetConsoleTextAttribute` Win32 API and only calls to standard output.
 
 Would calling the `SetConsoleTextAttribute` Win32 API on the setter of the `ForegroundColor` property not only on stdout, but also on stderr (and stdin) solve the problem?
+
+The current code is below.
+```c#
+Interop.Kernel32.SetConsoleTextAttribute(OutputHandle, attrs);
+```
+
+My suggested code is below.
+```c#
+Interop.Kernel32.SetConsoleTextAttribute(OutputHandle, attrs);
+Interop.Kernel32.SetConsoleTextAttribute(ErrorHandle, attrs);
+Interop.Kernel32.SetConsoleTextAttribute(InputHandle, attrs);
+```
+
+However, I don't know why the code was written where the `SetConsoleTextAttribute` API is called only on the stdout handle, so my suggestion may be inaccurate.
 
 At the very least, ignoring the error and calling the `SetConsoleTextAttribute` Win32 API on both stdout and stderr seems to set the foreground color correctly even if one of them is redirected.[^2]
 
