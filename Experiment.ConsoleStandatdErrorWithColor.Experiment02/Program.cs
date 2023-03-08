@@ -72,7 +72,6 @@ namespace Experiment.ConsoleStandatdErrorWithColor.Experiment02
 
         #endregion
 
-
         #region Main code
 
         public static void Main(string[] args)
@@ -86,63 +85,88 @@ namespace Experiment.ConsoleStandatdErrorWithColor.Experiment02
             // Code that examines the effect on stdout and stderr of changing the stdout foreground color.
             {
                 // Change the standard output foreground color to blue.
-                SetConsoleTextAttribute(stdoutHandle, Color.ForegroundBlue);
-                Write(stderrHandle, $"The standard output foregroundcolor has been changed to \"Blue\".\r\n");
+                SetConsoleTextAttribute(stdoutHandle, Color.ForegroundBlue, out string? errorMessage);
+                if (errorMessage is not null)
+                {
+                    Write(stdoutHandle, $"Failed to change standard output foreground color. : \"{errorMessage}\"\r\n");
+                    Write(stderrHandle, $"Failed to change standard output foreground color. : \"{errorMessage}\"\r\n");
+                }
+                else
+                    Write(stderrHandle, "The standard output foregroundcolor has been changed to blue.\r\n");
 
                 // Write text to standard output.
-                Write(stdoutHandle, $"This text is printed to standard output and is expected to be displayed in blue.\r\n");
+                Write(stdoutHandle, "This text is printed to standard output and should appear in blue.\r\n");
                 // Write text to standard error.
-                Write(stderrHandle, $"This text is being printed to standard error and is expected to be displayed in blue.\r\n");
+                Write(stderrHandle, "This text is printed to standard error and should appear in blue.\r\n");
 
                 // Reset standard output foreground color to default.
-                SetConsoleTextAttribute(stdoutHandle, (Color)0x07);
-                Write(stderrHandle, $"The standard output foregroundcolor was reset.\r\n");
+                SetConsoleTextAttribute(stdoutHandle, (Color)0x07, out errorMessage);
+                if (errorMessage is not null)
+                {
+                    Write(stdoutHandle, $"Failed to reset standard output foreground color. : \"{errorMessage}\"\r\n");
+                    Write(stderrHandle, $"Failed to reset standard output foreground color. : \"{errorMessage}\"\r\n");
+                }
+                else
+                    Write(stderrHandle, "The standard output foregroundcolor was reset.\r\n");
             }
 
             // Code that examines the effect on stdout and stderr of changing the stderr foreground color.
             {
                 // Change the standard error foreground color to red.
-                SetConsoleTextAttribute(stderrHandle, Color.ForegroundRed);
-                Write(stderrHandle, $"The standard output foregroundcolor has been changed to \"Red\".\r\n");
+                SetConsoleTextAttribute(stderrHandle, Color.ForegroundRed, out string? errorMessage);
+                if (errorMessage is not null)
+                {
+                    Write(stdoutHandle, $"Failed to change standard error foreground color. : \"{errorMessage}\"\r\n");
+                    Write(stderrHandle, $"Failed to change standard error foreground color. : \"{errorMessage}\"\r\n");
+                }
+                else
+                    Write(stderrHandle, $"The standard error foregroundcolor has been changed to red.\r\n");
 
                 // Write text to standard output.
-                Write(stdoutHandle, $"This text is printed to standard output and is expected to be displayed in blue.\r\n");
+                Write(stdoutHandle, "This text is printed to standard output and should appear in red.\r\n");
                 // Write text to standard error.
-                Write(stderrHandle, $"This text is being printed to standard error and is expected to be displayed in blue.\r\n");
+                Write(stderrHandle, "This text is printed to standard error and should appear in red.\r\n");
 
                 // Reset standard error foreground color to default.
-                SetConsoleTextAttribute(stderrHandle, (Color)0x07);
-                Write(stderrHandle, $"The standard output foregroundcolor was reset.\r\n");
+                SetConsoleTextAttribute(stderrHandle, (Color)0x07, out errorMessage);
+                if (errorMessage is not null)
+                {
+                    Write(stdoutHandle, $"Failed to reset standard error foreground color. : \"{errorMessage}\"\r\n");
+                    Write(stderrHandle, $"Failed to reset standard error foreground color. : \"{errorMessage}\"\r\n");
+                }
+                else
+                    Write(stderrHandle, $"The standard error foregroundcolor was reset.\r\n");
             }
         }
 
         // [Result]
         // 1) If the redirect was not done, the following execution result will be displayed on the console.:
         //     
-        //     The standard output foregroundcolor has been changed to "Blue".                           <= displayed in blue. (OK)
-        //     This text is printed to standard output and is expected to be displayed in blue.          <= displayed in blue. (OK)
-        //     This text is being printed to standard error and is expected to be displayed in blue.     <= displayed in blue. (OK)
-        //     The standard output foregroundcolor was reset.                                            <= displayed in default color. (OK)
-        //     The standard output foregroundcolor has been changed to "Red".                            <= displayed in red. (OK)
-        //     This text is printed to standard output and is expected to be displayed in blue.          <= displayed in red. (OK)
-        //     This text is being printed to standard error and is expected to be displayed in blue.     <= displayed in red. (OK)
-        //     The standard output foregroundcolor was reset.                                            <= displayed in default color. (OK)
+        //     The standard output foregroundcolor has been changed to blue.        <= displayed in blue.
+        //     This text is printed to standard output and should appear in blue.   <= displayed in blue.
+        //     This text is printed to standard error and should appear in blue.    <= displayed in blue.
+        //     The standard output foregroundcolor was reset.                       <= displayed in default color.
+        //     The standard error foregroundcolor has been changed to red.          <= displayed in red.
+        //     This text is printed to standard output and should appear in red.    <= displayed in red.
+        //     This text is printed to standard error and should appear in red.     <= displayed in red.
+        //     The standard error foregroundcolor was reset.                        <= displayed in default color.
         //
         // 2) If the standard output is redirected, the following execution results will be displayed on the console.:
-        //     
-        //     The standard output foregroundcolor has been changed to "Blue".                           <= displayed in default color. (OK)
-        //     This text is being printed to standard error and is expected to be displayed in blue.     <= displayed in default color. (OK)
-        //     The standard output foregroundcolor was reset.                                            <= displayed in default color. (OK)
-        //     The standard output foregroundcolor has been changed to "Red".                            <= displayed in red. (OK)
-        //     This text is being printed to standard error and is expected to be displayed in blue.     <= displayed in red. (OK)
-        //     The standard output foregroundcolor was reset.                                            <= displayed in default color. (OK)
+        //
+        //     Failed to change standard output foreground color. : "ハンドルが無効です。 (0x80070006 (E_HANDLE))"
+        //     This text is printed to standard error and should appear in blue.    <= displayed in default color. (Because it fails to change the foreground color of the standard output)
+        //     Failed to reset standard output foreground color. : "ハンドルが無効です。 (0x80070006 (E_HANDLE))"
+        //     The standard error foregroundcolor has been changed to red.          <= displayed in red.
+        //     This text is printed to standard error and should appear in red.     <= displayed in red.
+        //     The standard error foregroundcolor was reset.                        <= displayed in default color.
         //
         // 3) If the standard error is redirected, the following execution results will be displayed on the console.:
-        //     
-        //     This text is printed to standard output and is expected to be displayed in blue.          <= displayed in blue. (OK)
-        //     This text is printed to standard output and is expected to be displayed in blue.          <= displayed in default color. (OK)
         //
-
+        //     This text is printed to standard output and should appear in blue.   <= displayed in blue.
+        //     Failed to change standard error foreground color. : "ハンドルが無効です。 (0x80070006 (E_HANDLE))"
+        //     This text is printed to standard output and should appear in red.    <= displayed in default color. (Because it fails to change the foreground color of the standard error)
+        //     Failed to reset standard error foreground color. : "ハンドルが無効です。 (0x80070006 (E_HANDLE))"
+        //
 
         #endregion
 
@@ -163,10 +187,12 @@ namespace Experiment.ConsoleStandatdErrorWithColor.Experiment02
         /// </remarks>
         private static CONSOLE_SCREEN_BUFFER_INFO? GetConsoleScreenBufferInfo(IntPtr handle)
         {
-            return
-                GetConsoleScreenBufferInfo(handle, out CONSOLE_SCREEN_BUFFER_INFO consoleInfo)
-                ? consoleInfo
-                : null;
+            if (!GetConsoleScreenBufferInfo(handle, out CONSOLE_SCREEN_BUFFER_INFO consoleInfo))
+            {
+                Marshal.ThrowExceptionForHR(Marshal.GetLastWin32Error());
+                throw new Exception("internal error");
+            }
+            return consoleInfo;
         }
 
         /// <summary>
@@ -178,15 +204,23 @@ namespace Experiment.ConsoleStandatdErrorWithColor.Experiment02
         /// <param name="color">
         /// foreground color.
         /// </param>
+        /// <param name="errorMessage">
+        /// the message if an error occurred, null otherwise
+        /// </param>
         /// <remarks>
         /// If the <paramref name="handle"/> has been redirected, do nothing.
         /// </remarks>
-        private static void SetConsoleTextAttribute(IntPtr handle, Color color)
+        private static void SetConsoleTextAttribute(IntPtr handle, Color color, out string? errorMessage)
         {
-            if (GetConsoleScreenBufferInfo(handle) is not null)
+            try
             {
                 if (!SetConsoleTextAttribute(handle, (short)color))
                     Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
+                errorMessage = null;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
             }
         }
 

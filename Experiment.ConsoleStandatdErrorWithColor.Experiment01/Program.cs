@@ -24,6 +24,10 @@ namespace Experiment.ConsoleStandatdErrorWithColor.Experiment01
             // Display with "Console.Error.WriteLine(string?)"
             Console.Error.WriteLine("This text is expected to be displayed in blue. (to stderr)");
 
+            // Display the foreground color of the console.
+            Console.WriteLine($"The current console foreground color is \"{Console.ForegroundColor}\" (to stdout).");
+            Console.Error.WriteLine($"The current console foreground color is \"{Console.ForegroundColor}\" (to stderr).");
+
             // Restore the foreground color.
             Console.ForegroundColor = defaultColor;
         }
@@ -37,15 +41,19 @@ namespace Experiment.ConsoleStandatdErrorWithColor.Experiment01
     //     This text is expected to be displayed in blue. (to default (==stdout))    <= displayed in blue. (OK)
     //     This text is expected to be displayed in blue. (to stdout)                <= displayed in blue. (OK)
     //     This text is expected to be displayed in blue. (to stderr)                <= displayed in blue. (OK)
+    //     The current console foreground color is "Blue" (to stdout).               <= displayed in blue. (OK)
+    //     The current console foreground color is "Blue" (to stderr).               <= displayed in blue. (OK)
     //      
     // 2) If the standard output is redirected to a file, the execution result will be displayed as follows.:
     //
     //     This text is expected to be displayed in blue. (to stderr)                <= Displayed in the default color. (NG)
+    //     The current console foreground color is "Gray" (to stderr).               <= Displayed in the default color. (NG)
     //      
     // 3) If the standard error is redirected to a file, the execution result will be displayed as follows.:
     //
     //     This text is expected to be displayed in blue. (to default (==stdout))    <= displayed in blue. (OK)
     //     This text is expected to be displayed in blue. (to stdout)                <= displayed in blue. (OK)
+    //     The current console foreground color is "Blue" (to stdout).               <= displayed in blue. (OK)
     //
     // [Additional Info] 
     // Below is the URL of an article on "stack overflow".
