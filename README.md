@@ -77,6 +77,10 @@ The complete source code of the sample program can be found at the URL below.
 
 ## [Investigation result]
 
+According to Mark Lakata's comments on
+[a stack overflow post](https://stackoverflow.com/questions/10532796/setting-the-color-for-console-error-writes)
+, the issue seems to have existed since at least December 2012.
+
 ### `.NET` code findings
 
 First, I examined
