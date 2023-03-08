@@ -118,7 +118,7 @@ When user code changes the value of the `ForegroundColor` property, a Win32 API 
 However, **this Win32 API should have failed** because standard output has been redirected, but the failure is ignored.
 
 Subsequent attempts to print characters to stderr will call the Win32 API to ask for information such as the console foreground color.
-By the way, since the standard output is redirected at this time, it is the Win32 API call to the standard error output that normally returns the console information.
+By the way, standard output is redirected at this time, so it's the Win32 API calls to standard error that correctly return console information.
 However, the Win32 API returns the foreground color before the change (that is, the default foreground color) because the foreground color has failed to be changed as described above.
 
 As a result, the foreground color of the standard error output is the default color, regardless of what the ForegroundColor property is set to.
