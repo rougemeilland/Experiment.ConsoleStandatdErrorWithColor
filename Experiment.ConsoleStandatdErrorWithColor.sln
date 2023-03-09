@@ -5,7 +5,11 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experiment.ConsoleStandatdErrorWithColor.Experiment01", "Experiment.ConsoleStandatdErrorWithColor.Experiment01\Experiment.ConsoleStandatdErrorWithColor.Experiment01.csproj", "{D0E11DE0-5313-4FC0-864F-1B772BE6F02B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experiment.ConsoleStandatdErrorWithColor.Experiment02", "Experiment.ConsoleStandatdErrorWithColor.Experiment02\Experiment.ConsoleStandatdErrorWithColor.Experiment02.csproj", "{7AEE8981-0434-4675-9F72-EE20F94D3A72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experiment.ConsoleStandatdErrorWithColor.Experiment02", "Experiment.ConsoleStandatdErrorWithColor.Experiment02\Experiment.ConsoleStandatdErrorWithColor.Experiment02.csproj", "{7AEE8981-0434-4675-9F72-EE20F94D3A72}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experiment.ConsoleStandatdErrorWithColor.Experiment03", "Experiment.ConsoleStandatdErrorWithColor.Experiment03\Experiment.ConsoleStandatdErrorWithColor.Experiment03.csproj", "{D2DCCAD0-352A-4DEE-92C9-4BA9F00A19A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experiment.ConsoleStandatdErrorWithColor.Experiment04", "Experiment.ConsoleStandatdErrorWithColor.Experiment04\Experiment.ConsoleStandatdErrorWithColor.Experiment04.csproj", "{9B7EE864-0E0C-4AEF-B8EF-544FEF0CA0B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{7AEE8981-0434-4675-9F72-EE20F94D3A72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AEE8981-0434-4675-9F72-EE20F94D3A72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7AEE8981-0434-4675-9F72-EE20F94D3A72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2DCCAD0-352A-4DEE-92C9-4BA9F00A19A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2DCCAD0-352A-4DEE-92C9-4BA9F00A19A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2DCCAD0-352A-4DEE-92C9-4BA9F00A19A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2DCCAD0-352A-4DEE-92C9-4BA9F00A19A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B7EE864-0E0C-4AEF-B8EF-544FEF0CA0B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B7EE864-0E0C-4AEF-B8EF-544FEF0CA0B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B7EE864-0E0C-4AEF-B8EF-544FEF0CA0B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B7EE864-0E0C-4AEF-B8EF-544FEF0CA0B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
