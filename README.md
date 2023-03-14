@@ -139,6 +139,9 @@ Interop.Kernel32.SetConsoleTextAttribute(OutputHandle, attrs);
 ```
 
 My suggested code is below.
+
+***The code below turned out to be incorrect. See [Postscript (March 14, 2023)](#11-using-the-stdin-handle-as-the-console-handle-will-fail-for-most-win32-apis)) for details.***
+
 ```c#
 Interop.Kernel32.SetConsoleTextAttribute(OutputHandle, attrs);
 Interop.Kernel32.SetConsoleTextAttribute(ErrorHandle, attrs);
@@ -149,7 +152,30 @@ However, I don't know why the code was written where the `SetConsoleTextAttribut
 
 At the very least, ignoring the error and calling the `SetConsoleTextAttribute` Win32 API on both stdout and stderr seems to set the foreground color correctly even if one of them is redirected.[^2]
 
+## [Postscript]
+### 1. March 14, 2023
+#### 1.1 Using the stdin handle as the console handle will fail for most Win32 APIs
+As a result of experiments, it was found that giving a standard input handle to most APIs for manipulating the console would result in an error.
+These APIs also include the `SetConsoleTextAttribute` and `GetConsoleScreenBufferInfo` APIs shown in the proposed fix above.
+
+So the new proposed fix for the source code would be:
+
+```c#
+Interop.Kernel32.SetConsoleTextAttribute(OutputHandle, attrs);
+Interop.Kernel32.SetConsoleTextAttribute(ErrorHandle, attrs);
+```
+
+By the way, the current `ConsolPal` class (Windows version) source code calls the `GetConsoleScreenBufferInfo` API for each of the standard output/standard error output/standard input to get the `CONSOLE_SCREEN_BUFFER_INFO` structure. (see [.NET code findings](#net-code-findings))
+
+However, calling the `GetConsoleScreenBufferInfo` API on a handle to standard input always fails, so I don't think it's necessary to call it.
+
+### 1.2 About the same problem in UNIX version `ConsolePal`
+
+Some console operations in the UNIX `ConsolePal` class are implemented by sending ANSI escape codes to the console.
+This includes changing the foreground and background colors of characters displayed in the console.
+However, in the current `ConsolePal` class implementation, ANSI escape codes are **always printed to standard output**.
+Therefore, **even though the standard error output is valid as a console**, if the standard output is redirected, some functions of the `Console` class (eg changing the foreground/background color, moving the cursor, beeping, clear screen, etc.) are not available.
+
 [^1]: Considering that an error occurs even in the common situation that "standard output is redirected", it seems rather natural that error checking is not performed.
 
 [^2]: If the `SetConsoleTextAttribute` Win32 API fails for both standard output and standard error, it should mean that both standard output and standard error are being redirected. Considering whether you really need to care about the value of the `ForegroundColor` property in that situation, you may not need to call the `SetConsoleTextAttribute` Win32 API on standard input.
-
